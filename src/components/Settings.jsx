@@ -32,6 +32,16 @@ const settingsItems = [
   },
 ]
 
+// shared look for every tappable row
+const rowClass =
+  'flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left text-sm font-semibold ' +
+  'border-b border-black/20 last:border-b-0 transition-colors card-hover-theme ' +
+  'focus-visible:outline-none focus-visible:bg-[#bed8b7] sm:px-6 sm:py-4 sm:text-base'
+
+// round tile that holds each row's icon
+const iconTileClass =
+  'inner-theme flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-black/30 sm:h-10 sm:w-10'
+
 export const Settings = () => {
   const navigate = useNavigate()
 
@@ -69,28 +79,21 @@ export const Settings = () => {
 
   const shown = hover || rating
 
-  const rowClass =
-    'w-full flex items-center justify-between gap-3 py-4 text-left font-bold text-sm sm:text-base transition-colors hover:opacity-80 border-b border-black/20'
-
   return (
-    <div className="min-h-screen w-full div-theme flex flex-col items-center justify-start py-6 px-4 sm:px-6 md:px-8">
-      <div className="w-full max-w-2xl flex flex-col gap-6 sm:gap-8">
+    // same page padding as Notification, no max-width so the cards match its width
+    <div className="div-theme text-dark-theme flex min-h-screen w-full flex-col items-center px-4 pb-6 pt-6 sm:px-10 sm:pb-10 sm:pt-10 md:px-20">
+      <div className="flex w-full flex-col gap-6 sm:gap-8">
 
-        {/* Header */}
-        <div className="flex items-center justify-between w-full relative">
-          <div className="flex items-center">
-            <Return to="/" className="top-0" />
-          </div>
-          <h1 className="text-base sm:text-lg md:text-xl font-bold absolute left-1/2 -translate-x-1/2 text-center pointer-events-none truncate max-w-[60%]">
+        {/* Header (same as Notification) */}
+        <div className="flex w-full flex-row items-center">
+          <Return to="/" className="top-0" />
+          <h1 className="flex flex-1 flex-row justify-center gap-2 pr-10 text-center text-base font-bold sm:pr-16 sm:text-lg">
             Settings
           </h1>
-          <div className="w-10" />
         </div>
 
-        {/* Settings list container */}
-        <div className="card-theme rounded-md w-full px-4 sm:px-8 py-2 flex flex-col shadow-sm">
-
-          {/* Original settings rows */}
+        {/* Settings list */}
+        <div className="card-theme flex w-full flex-col overflow-hidden rounded-2xl border border-black/80 shadow-sm">
           {settingsItems.map((item) => (
             <button
               key={item.label}
@@ -98,68 +101,81 @@ export const Settings = () => {
               onClick={() => handleItemClick(item)}
               className={rowClass}
             >
-              <span className="flex flex-row items-center gap-3">
-                <img src={item.icon} alt="" width={24} height={24} className="shrink-0 object-contain" />
-                <span>{item.label}</span>
+              <span className="flex min-w-0 flex-row items-center gap-3">
+                <span className={iconTileClass}>
+                  <img src={item.icon} alt="" width={20} height={20} className="object-contain" />
+                </span>
+                <span className="truncate">{item.label}</span>
               </span>
-              <ChevronRight size={22} className="shrink-0" />
+              <ChevronRight size={20} className="shrink-0 opacity-60" />
             </button>
           ))}
 
           {/* Contact developer */}
           <button type="button" onClick={handleContact} className={rowClass}>
-            <span className="flex flex-row items-center gap-3 min-w-0">
-              <Mail size={24} className="flex-shrink-0" />
-              <span className="flex flex-col min-w-0 text-left">
+            <span className="flex min-w-0 flex-row items-center gap-3">
+              <span className={iconTileClass}>
+                <Mail size={20} />
+              </span>
+              <span className="flex min-w-0 flex-col text-left">
                 <span>Contact developer</span>
-                <span className="text-xs font-normal text-gray-600 dark:text-gray-300 truncate">
+                <span className="truncate text-xs font-normal opacity-70">
                   {DEVELOPER_NAME} · {DEVELOPER_EMAIL}
                 </span>
               </span>
             </span>
-            <ChevronRight size={22} className="flex-shrink-0" />
+            <ChevronRight size={20} className="shrink-0 opacity-60" />
           </button>
 
           {/* Support Lazeu */}
           <button type="button" onClick={() => goTo(SUPPORT_PATH)} className={rowClass}>
-            <span className="flex flex-row items-center gap-3">
-              <Heart size={24} className="flex-shrink-0" />
-              <span>Support Lazeu</span>
+            <span className="flex min-w-0 flex-row items-center gap-3">
+              <span className={iconTileClass}>
+                <Heart size={20} />
+              </span>
+              <span className="truncate">Support Lazeu</span>
             </span>
-            <ChevronRight size={22} className="flex-shrink-0" />
+            <ChevronRight size={20} className="shrink-0 opacity-60" />
           </button>
-
-          {/* Rate Lazeu (last row, no divider) */}
-          <div className="w-full flex flex-wrap items-center justify-between gap-3 py-4 font-bold text-sm sm:text-base">
-            <span className="flex flex-row items-center gap-3">
-              <Star size={24} className="flex-shrink-0" />
-              <span>Rate Lazeu</span>
-            </span>
-
-            <div
-              className="flex flex-row items-center gap-1"
-              onMouseLeave={() => setHover(0)}
-            >
-              {[1, 2, 3, 4, 5].map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  aria-label={`Rate ${value} star${value > 1 ? 's' : ''}`}
-                  onClick={() => handleRate(value)}
-                  onMouseEnter={() => setHover(value)}
-                  className="p-1 transition-transform hover:scale-110 focus:outline-none"
-                >
-                  <Star
-                    size={24}
-                    className={`shrink-0 ${value <= shown ? 'text-yellow-500' : 'text-gray-400'}`}
-                    fill={value <= shown ? 'currentColor' : 'none'}
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
-
         </div>
+
+        {/* Rate Lazeu */}
+        <div className="card-theme flex w-full flex-col items-center gap-3 rounded-2xl border border-black/80 px-4 py-5 text-center shadow-sm sm:flex-row sm:justify-between sm:px-6 sm:text-left">
+          <span className="flex flex-row items-center gap-3 text-sm font-semibold sm:text-base">
+            <span className={iconTileClass}>
+              <Star size={20} />
+            </span>
+            <span className="flex flex-col leading-tight">
+              <span>Rate Lazeu</span>
+              <span className="text-xs font-normal opacity-70">
+                {rating ? `You rated ${rating} of 5. Thank you!` : 'Tap a star to rate'}
+              </span>
+            </span>
+          </span>
+
+          <div
+            className="flex flex-row items-center"
+            onMouseLeave={() => setHover(0)}
+          >
+            {[1, 2, 3, 4, 5].map((value) => (
+              <button
+                key={value}
+                type="button"
+                aria-label={`Rate ${value} star${value > 1 ? 's' : ''}`}
+                onClick={() => handleRate(value)}
+                onMouseEnter={() => setHover(value)}
+                className="rounded-md p-1.5 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/50"
+              >
+                <Star
+                  size={26}
+                  className={`shrink-0 ${value <= shown ? 'text-yellow-500' : 'text-gray-500/70'}`}
+                  fill={value <= shown ? 'currentColor' : 'none'}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+
       </div>
     </div>
   )
