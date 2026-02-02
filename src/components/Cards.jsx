@@ -88,17 +88,22 @@ const Cards = () => {
   return (
     <>
       {/* Header */}
-      <div className="w-full px-4 py-6 sm:px-10 sm:py-10">
-        <div className="flex items-center gap-3 sm:gap-4">
-          <Return to="/decks" />
-          <h1 className="min-w-0 flex-1 break-words text-center font-bold capitalize text-lg sm:flex-none sm:pl-3 sm:text-left sm:text-xl">
+      <div className="mx-auto w-full max-w-3xl px-3 py-5 sm:px-4 sm:py-8">
+        {/* back | centered title | spacer */}
+        <div className="grid grid-cols-[2.5rem_1fr_2.5rem] items-center">
+          <div className="flex items-center">
+            <Return to="/decks" />
+          </div>
+          <h1 className="truncate text-center text-lg font-bold capitalize sm:text-xl">
             {deck?.deckname}
           </h1>
+          <div />
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-2 sm:mt-10 sm:pl-24">
+        {/* buttons share the row on phones, hug their content from sm up */}
+        <div className="mt-5 flex flex-row gap-2 sm:mt-8 sm:gap-3">
           <button
-            className="card-hover-theme card-theme flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold sm:px-6  "
+            className="card-hover-theme card-theme flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:px-6"
             onClick={() => navigate(`/study/${deckId}`)}
             disabled={cards.length === 0}
           >
@@ -112,7 +117,7 @@ const Cards = () => {
           </button>
 
           <button
-            className="card-hover-theme card-theme flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold sm:px-6"
+            className="card-hover-theme card-theme flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-xs font-bold sm:flex-none sm:px-6"
             onClick={() => setAddNewTrigger((n) => n + 1)}
           >
             <img
