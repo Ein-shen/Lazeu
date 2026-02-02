@@ -4,28 +4,25 @@ import { X, Upload } from 'lucide-react'
 
 // Shared responsive class strings (mobile-first, scale up at sm:)
 const fieldInput =
-  "w-full min-h-[3.5rem] div-theme sm:min-h-[6rem]  bg-gray-300 " +
-  "rounded-2xl sm:rounded-full px-4 sm:px-10 py-3 text-base sm:text-lg " +
+  "w-full min-h-[3rem] sm:min-h-[3.5rem] div-theme rounded-xl px-4 py-3 " +
+  "text-base sm:text-lg border border-black/30 " +
   "focus:outline-none focus:ring-2 focus:ring-black/40"
 
-const fieldLabel = "block  font-bold px-1 sm:pl-10 pb-1 text-base sm:text-lg"
+const fieldLabel = "block px-1 pb-1.5 text-sm font-bold sm:text-base"
 
-const del =
-  "font-bold min-h-[3rem] sm:min-h-[3.5rem] w-full sm:w-auto sm:flex-1 " +
-  " bg-red-400 hover:bg-red-200 rounded-full px-5 text-sm sm:text-base " +
-  "disabled:opacity-60"
+const actionBtn =
+  "min-h-[3rem] w-full sm:w-auto sm:flex-1 rounded-full px-5 text-sm font-bold " +
+  "border border-black/60 transition-colors disabled:opacity-60 sm:text-base"
 
-const save =
-  "font-bold min-h-[3rem] sm:min-h-[3.5rem] w-full sm:w-auto sm:flex-1 " +
-  "  bg-green-400 hover:bg-green-200 rounded-full px-5 text-sm sm:text-base " +
-  "disabled:opacity-60"
+const del = `${actionBtn} bg-red-400 hover:bg-red-200`
+const save = `${actionBtn} bg-green-400 hover:bg-green-200`
+const addChoiceBtn = `${actionBtn} bg-blue-400 hover:bg-blue-200`
 
-const choice =
-  "font-bold min-h-[3rem] bg-blue-400 hover:bg-blue-200 sm:min-h-[3.5rem] w-full sm:w-auto sm:flex-1 " +
-  "  rounded-full px-5 text-sm sm:text-base " +
-  "disabled:opacity-60"
+// small heading used inside each card (Front / Back / Choices)
+const sectionTitle =
+  "flex flex-row items-center gap-2 px-1 text-base text-gray-600 sm:pl-2 sm:text-xl"
 
- 
+const emptyForm = { front: '', back: '', option1: '', option2: '', option3: '' }
 
 const QandA = ({ deckId, onComplete, showForm, setShowForm, triggerAddNew }) => {
 
@@ -87,14 +84,7 @@ const QandA = ({ deckId, onComplete, showForm, setShowForm, triggerAddNew }) => 
     }
   }, [triggerAddNew])
 
-  const [formCard, setFormCard] = useState({
-    front: '',
-    back: '',
-    option1: '',
-    option2: '',
-    option3: '',
-  })
-
+  const [formCard, setFormCard] = useState(emptyForm)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -163,7 +153,7 @@ const QandA = ({ deckId, onComplete, showForm, setShowForm, triggerAddNew }) => 
         })
       }
 
-      setFormCard({ front: '', back: '', option1: '', option2: '', option3: '' })
+      setFormCard(emptyForm)
       setImageFile(null)
       setImagePreview(null)
       setChoices([])
@@ -203,7 +193,7 @@ const QandA = ({ deckId, onComplete, showForm, setShowForm, triggerAddNew }) => 
 
   const handleAddNew = () => {
     setEditingId(null)
-    setFormCard({ front: '', back: '', option1: '', option2: '', option3: '' })
+    setFormCard(emptyForm)
     setImageFile(null)
     setImagePreview(null)
     setChoices([])
@@ -218,17 +208,17 @@ const QandA = ({ deckId, onComplete, showForm, setShowForm, triggerAddNew }) => 
   return (
     <div
       ref={scrollRef}
-      className="flex flex-col rounded-xl items-center w-full max-w-3xl mx-auto mt-3 sm:mt-5 px-3 sm:px-4 pb-6"
+      className="mx-auto mt-3 flex w-full max-w-3xl flex-col items-center px-3 pb-6 sm:mt-5 sm:px-4"
     >
       {showForm ? (
         <>
           {/* Form card */}
-          <div className="flex flex-col w-full  card-theme rounded-md">
+          <div className="card-theme flex w-full flex-col rounded-2xl border border-black/80">
             <button
               type="button"
               aria-label="Close form"
               onClick={() => { setShowForm(false); setEditingId(null) }}
-              className="self-end m-2 sm:mr-4 sm:mt-3 p-2"
+              className="m-2 self-end rounded-lg p-2 transition-colors hover:bg-black/10 sm:mr-4 sm:mt-3"
             >
               <X size={24} />
             </button>
@@ -236,19 +226,19 @@ const QandA = ({ deckId, onComplete, showForm, setShowForm, triggerAddNew }) => 
             <form
               id="card-form"
               onSubmit={handleSubmit}
-              className="w-full flex flex-col  gap-4 sm:gap-5 px-3 sm:px-6 pb-6 sm:pb-10 pt-1 sm:pt-3"
+              className="flex w-full flex-col gap-4 px-4 pb-6 pt-1 sm:gap-5 sm:px-8 sm:pb-8"
             >
               {/* Front */}
-              <div className="w-full  pb-2 sm:pb-3">
+              <div className="w-full">
                 <label htmlFor="front" className={fieldLabel}>Front</label>
 
                 <div className="flex flex-col gap-3">
                   {imagePreview && (
-                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 mt-2 self-start ml-1 sm:ml-10">
+                    <div className="relative ml-1 mt-1 h-20 w-20 self-start sm:h-24 sm:w-24">
                       <img
                         src={imagePreview}
                         alt="preview"
-                        className="w-full h-full object-cover rounded-md"
+                        className="h-full w-full rounded-md object-cover"
                       />
                       <button
                         type="button"
@@ -257,7 +247,7 @@ const QandA = ({ deckId, onComplete, showForm, setShowForm, triggerAddNew }) => 
                           setImageFile(null)
                           setImagePreview(null)
                         }}
-                        className="absolute -top-2 -right-2 border border-black/80 bg-white text-black rounded-full w-7 h-7 flex items-center justify-center"
+                        className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full border border-black/80 bg-white text-black"
                       >
                         <X size={14} />
                       </button>
@@ -267,7 +257,7 @@ const QandA = ({ deckId, onComplete, showForm, setShowForm, triggerAddNew }) => 
                   <div className="relative w-full">
                     <input
                       id="front"
-                      className={`${fieldInput} pr-14 sm:pr-20`}
+                      className={`${fieldInput} pr-14`}
                       placeholder="Add Question"
                       name="front"
                       value={formCard.front}
@@ -286,7 +276,7 @@ const QandA = ({ deckId, onComplete, showForm, setShowForm, triggerAddNew }) => 
                     <label
                       htmlFor="frontImageInput"
                       aria-label="Upload image"
-                      className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 cursor-pointer p-2"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-lg p-2 transition-colors hover:bg-black/10"
                     >
                       <Upload size={20} />
                     </label>
@@ -294,7 +284,7 @@ const QandA = ({ deckId, onComplete, showForm, setShowForm, triggerAddNew }) => 
                 </div>
               </div>
 
-              <hr className="w-full border-black" />
+              <hr className="w-full border-black/40" />
 
               {/* Back */}
               <div className="w-full">
@@ -311,7 +301,7 @@ const QandA = ({ deckId, onComplete, showForm, setShowForm, triggerAddNew }) => 
               </div>
 
               {/* Options */}
-              {choices.map((choice, index) => {
+              {choices.map((_, index) => {
                 const fieldName = `option${index + 1}`
                 return (
                   <div key={index} className="w-full">
@@ -330,7 +320,7 @@ const QandA = ({ deckId, onComplete, showForm, setShowForm, triggerAddNew }) => 
               })}
 
               {error && (
-                <p className="text-red-600 font-bold w-full text-sm sm:text-base break-words">
+                <p className="w-full break-words text-sm font-bold text-red-600 sm:text-base">
                   {error}
                 </p>
               )}
@@ -338,8 +328,8 @@ const QandA = ({ deckId, onComplete, showForm, setShowForm, triggerAddNew }) => 
           </div>
 
           {/* Action bar: stacked on mobile, row on sm+ */}
-          <div className="w-full mt-3 card-theme   rounded-xl px-3 sm:px-8 py-3 sm:py-4">
-            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch gap-3">
+          <div className="card-theme mt-3 w-full rounded-2xl border border-black/80 px-3 py-3 sm:px-8 sm:py-4">
+            <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
               {choices.length > 0 && (
                 <button
                   type="button"
@@ -351,7 +341,7 @@ const QandA = ({ deckId, onComplete, showForm, setShowForm, triggerAddNew }) => 
               )}
 
               {choices.length < 3 && (
-                <button type="button" className={choice} onClick={addChoice}>
+                <button type="button" className={addChoiceBtn} onClick={addChoice}>
                   Add choices
                 </button>
               )}
@@ -369,82 +359,109 @@ const QandA = ({ deckId, onComplete, showForm, setShowForm, triggerAddNew }) => 
         </>
 
       ) : cardsList.length > 0 ? (
-        <div className="w-full flex flex-col  gap-4">
+        <div className="flex w-full flex-col gap-4">
           {cardsList.map((c) => (
             <div
               key={c.id}
-              className=" card-theme rounded-xl p-3 sm:p-6 bg-gray-300 flex flex-col gap-2 min-w-0"
+              className="card-theme flex min-w-0 flex-col gap-2 rounded-2xl border border-black/80 p-4 sm:p-6"
             >
-              <h2 className="text-gray-600 text-lg sm:text-2xl px-1 sm:pl-2 pb-2 sm:pb-4 flex flex-row gap-2 items-center  ">
-                <img src="https://img.icons8.com/?size=100&id=44353&format=png&color=000000" alt="front" height={29} width={29} />
-                Front</h2>
+              <h2 className={`${sectionTitle} pb-1 sm:pb-2`}>
+                <img
+                  src="https://img.icons8.com/?size=100&id=44353&format=png&color=000000"
+                  alt=""
+                  className="h-6 w-6 sm:h-7 sm:w-7"
+                />
+                Front
+              </h2>
 
               {c.front_image_url && (
                 <img
                   src={c.front_image_url}
                   alt="front"
-                  className="w-24 h-24 sm:w-32 sm:h-32 max-w-full object-cover rounded-md ml-1 sm:ml-5"
+                  className="ml-1 h-24 w-24 max-w-full rounded-md object-cover sm:ml-5 sm:h-32 sm:w-32"
                 />
               )}
 
-              <p className="font-bold border-b border-black/80 pb-3 sm:pb-5 pt-3 sm:pt-4 px-1 sm:pl-5 text-base sm:text-lg break-words">
-               
+              <p className="break-words border-b border-black/30 px-1 pb-4 pt-2 text-base font-bold sm:pb-5 sm:pl-5 sm:text-lg">
                 {c.front}
               </p>
 
-              <h2 className="text-gray-600 flex flex-row gap-2 items-center text-lg sm:text-2xl pt-3 sm:pt-5 px-1 sm:pl-2">
-                <img src="https://img.icons8.com/?size=100&id=22188&format=png&color=000000" alt="front" height={29} width={29} />
-                Back</h2>
-              <p className="font-bold border-b  border-black/80 pb-3 sm:pb-5 pt-2 sm:pt-5 px-1 sm:pl-5 text-base sm:text-lg break-words">
+              <h2 className={`${sectionTitle} pt-2 sm:pt-4`}>
+                <img
+                  src="https://img.icons8.com/?size=100&id=22188&format=png&color=000000"
+                  alt=""
+                  className="h-6 w-6 sm:h-7 sm:w-7"
+                />
+                Back
+              </h2>
+              <p className="break-words border-b border-black/30 px-1 pb-4 pt-2 text-base font-bold sm:pb-5 sm:pl-5 sm:text-lg">
                 {c.back}
               </p>
 
               {(c.option1 || c.option2 || c.option3) && (
-                <div className="flex flex-col gap-2 pt-2 border-b  border-black/80 pb-5 sm:pb-8">
-                  <h2 className="text-gray-600 text-lg sm:text-2xl flex felx-row items-center gap-2 pt-2 sm:pt-5 px-1 sm:pl-2">
-                    <img src="https://img.icons8.com/?size=100&id=WymyiG7EB0Qq&format=png&color=000000" alt="ch" height={29} width={29}/>
-                    Choices</h2>
+                <div className="flex flex-col gap-2 border-b border-black/30 pb-4 pt-2 sm:pb-5 sm:pt-4">
+                  <h2 className={sectionTitle}>
+                    <img
+                      src="https://img.icons8.com/?size=100&id=WymyiG7EB0Qq&format=png&color=000000"
+                      alt=""
+                      className="h-6 w-6 sm:h-7 sm:w-7"
+                    />
+                    Choices
+                  </h2>
                   {[c.option1, c.option2, c.option3].filter(Boolean).map((opt, i) => (
-                    <span key={i} className="font-bold px-1 sm:pl-5 text-base sm:text-lg break-words">
+                    <span key={i} className="break-words px-1 text-base font-bold sm:pl-5 sm:text-lg">
                       - {opt}
                     </span>
                   ))}
                 </div>
               )}
 
-              <div className="flex flex-wrap justify-end gap-3 mt-4 sm:mt-8">
-                <button 
-                onClick={() => handleEdit(c)} className="items-center card-hover-theme     gap-2 div-theme flex flex-row  text-xs font-bold   rounded-lg px-4 py-2 ">
-                  <img src="https://img.icons8.com/?size=100&id=dGDK6sDzQfsa&format=png&color=000000" alt="edit" height={24} width={24}/>
+              {/* Buttons share the row on phones, sit at the right from sm up */}
+              <div className="mt-3 flex flex-row gap-2 sm:mt-5 sm:justify-end sm:gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleEdit(c)}
+                  className="div-theme card-hover-theme flex flex-1 flex-row items-center justify-center gap-2 rounded-lg border border-black/30 px-4 py-2.5 text-xs font-bold transition-colors sm:flex-none sm:text-sm"
+                >
+                  <img
+                    src="https://img.icons8.com/?size=100&id=dGDK6sDzQfsa&format=png&color=000000"
+                    alt=""
+                    className="h-5 w-5 sm:h-6 sm:w-6"
+                  />
                   Edit
                 </button>
                 <button
-                 onClick={() => handleDelete(c.id)} className="items-center gap-2  card-hover-theme div-theme  flex flex-row  text-xs font-bold   rounded-lg px-4 py-2  ">
-                  <img src="https://img.icons8.com/?size=100&id=A6KpvyL1Ezlb&format=png&color=000000" alt="delte" height={24} width={24}/>
+                  type="button"
+                  onClick={() => handleDelete(c.id)}
+                  className="div-theme card-hover-theme flex flex-1 flex-row items-center justify-center gap-2 rounded-lg border border-black/30 px-4 py-2.5 text-xs font-bold transition-colors sm:flex-none sm:text-sm"
+                >
+                  <img
+                    src="https://img.icons8.com/?size=100&id=A6KpvyL1Ezlb&format=png&color=000000"
+                    alt=""
+                    className="h-5 w-5 sm:h-6 sm:w-6"
+                  />
                   Delete
                 </button>
               </div>
             </div>
           ))}
-
-          
         </div>
       ) : (
-        <div className="py-16 sm:py-32 flex flex-col items-center justify-center gap-4 text-center px-4 w-full">
-          <h1 className="font-bold text-lg sm:text-xl">No Activity yet</h1>
+        <div className="flex w-full flex-col items-center justify-center gap-4 px-4 py-16 text-center sm:py-32">
+          <h1 className="text-lg font-bold sm:text-xl">No Activity yet</h1>
           <p className="text-sm sm:text-base">Add your activity to start study.</p>
 
           <button
-            className="flex flex-row gap-3 card-theme  card-hover-theme items-center font-bold      text-xs px-6 py-2.5 rounded-lg w-full max-w-xs sm:w-fit "
+            type="button"
+            className="card-theme card-hover-theme flex w-full max-w-xs flex-row items-center justify-center gap-3 rounded-lg border border-black/60 px-6 py-2.5 text-xs font-bold sm:w-fit sm:text-sm"
             onClick={handleAddNew}
           >
-             <img 
-                src="https://img.icons8.com/?size=100&id=DQ8rpgRkocmO&format=png&color=000000" 
-                alt="add"
-                width={24}
-                height={24} 
-
-                 />
+            <img
+              src="https://img.icons8.com/?size=100&id=DQ8rpgRkocmO&format=png&color=000000"
+              alt=""
+              width={24}
+              height={24}
+            />
             Add cards
           </button>
         </div>
