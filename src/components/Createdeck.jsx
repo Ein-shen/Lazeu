@@ -8,7 +8,7 @@ const Createdeck = ({ deck = {}, onComplete, onCancel }) => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
 
-    const isEditing = !!deck.id   // 👈 true if we were handed an existing deck, false if creating new
+    const isEditing = !!deck.id   // true if we were handed an existing deck, false if creating new
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value })
@@ -42,7 +42,7 @@ const Createdeck = ({ deck = {}, onComplete, onCancel }) => {
                 .from('decks')
                 .insert([{ user_id: user.id, deckname: form.deckname, is_public: false }])
                 .select()
-            }
+        }
 
         const { data, error } = result
 
@@ -60,27 +60,30 @@ const Createdeck = ({ deck = {}, onComplete, onCancel }) => {
             <div style={Deck_style.modal}>
 
                 <button
-
+                    type="button"
                     style={Deck_style.X}
                     onClick={onCancel ?? onComplete}
-
-                    >
+                    aria-label="Close"
+                >
                     <X size={24} />
                 </button>
 
                 <h1 className='font-bold flex flex-row items-center gap-1'>
-                    <img 
-                    src="https://img.icons8.com/?size=100&id=DQ8rpgRkocmO&format=png&color=000000" 
-                    alt="add"
-                    width={20}
-                    height={20}
-                     />
-                    {isEditing ? 'Edit  deck' : 'Add deck'}</h1>
+                    <img
+                        src="https://img.icons8.com/?size=100&id=DQ8rpgRkocmO&format=png&color=000000"
+                        alt="add"
+                        width={20}
+                        height={20}
+                    />
+                    {isEditing ? 'Edit deck' : 'Add deck'}
+                </h1>
+
                 {error && <p style={{ color: 'red' }}>{error}</p>}
+
                 <form onSubmit={handleSubmit}>
                     <input
                         style={Deck_style.input}
-                        className='div-theme '
+                        className='div-theme'
                         name="deckname"
                         placeholder="Name your deck"
                         value={form.deckname}
@@ -90,7 +93,7 @@ const Createdeck = ({ deck = {}, onComplete, onCancel }) => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className='   div-theme card-hover-theme rounded-md px-4 py-2 font-semibold w-full'
+                        className='div-theme card-hover-theme rounded-md px-4 py-2 font-semibold w-full'
                     >
                         {loading ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Deck'}
                     </button>
@@ -103,16 +106,13 @@ const Createdeck = ({ deck = {}, onComplete, onCancel }) => {
 const Deck_style = {
     overlay: {
         position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        backgroundColor: 'card-theme',
+        inset: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // black at 50% (same as bg-black/50)
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        padding: '1rem',
         zIndex: 1000,
-       
     },
     modal: {
         position: 'relative',
@@ -124,7 +124,7 @@ const Deck_style = {
         display: 'flex',
         flexDirection: 'column',
         gap: '1rem',
-        border: '1px solid rgba(0, 0, 0, 0.8)' ,
+        border: '1px solid rgba(0, 0, 0, 0.8)',
     },
     input: {
         width: '100%',
@@ -134,16 +134,6 @@ const Deck_style = {
         border: '1px solid #ccc',
         fontSize: '1rem',
     },
-    button: {
-        width: '100%',
-        padding: '0.75rem',
-        backgroundColor: '#ACC5A6',
-        color: '#ACC5A6',
-        border: 'none',
-        borderRadius: '8px',
-        fontSize: '1rem',
-        cursor: 'pointer',
-    },
     X: {
         position: 'absolute',
         top: '1rem',
@@ -151,7 +141,7 @@ const Deck_style = {
         cursor: 'pointer',
         background: 'none',
         border: 'none',
-    }
+    },
 }
 
 export default Createdeck
