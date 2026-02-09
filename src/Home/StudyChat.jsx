@@ -1,3 +1,4 @@
+ 
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../supabaseClient";
 
@@ -27,7 +28,10 @@ const StudyChat = () => {
     const question = text.trim();
     if (!question || loading) return;
 
-    setMessages((previous) => [...previous, { role: "user", text: question }]);
+    setMessages((previous) => [
+      ...previous,
+      { role: "user", text: question },
+    ]);
     setMessage("");
     setLoading(true);
 
@@ -38,9 +42,10 @@ const StudyChat = () => {
       } = await supabase.auth.getSession();
 
       if (sessionError) throw sessionError;
-      if (!session) throw new Error("Please sign in to use the study assistant.");
+      if (!session) {
+        throw new Error("Please sign in to use the study assistant.");
+      }
 
-      // Send real conversation only: skip the greeting and any error bubbles
       const history = messages
         .filter((m) => m !== GREETING && !m.isError)
         .map((m) => ({
@@ -48,12 +53,21 @@ const StudyChat = () => {
           content: m.text,
         }));
 
-      const { data, error } = await supabase.functions.invoke("study-chat", {
-        body: { messages: [...history, { role: "user", content: question }] },
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "study-chat",
+        {
+          body: {
+            messages: [
+              ...history,
+              { role: "user", content: question },
+            ],
+          },
+        }
+      );
 
       if (error) {
         let errorMessage = error.message;
+
         try {
           const bodyText = await error.context?.text?.();
           if (bodyText) {
@@ -61,7 +75,10 @@ const StudyChat = () => {
             if (parsed?.error) errorMessage = parsed.error;
           }
         } catch {}
-        throw new Error(errorMessage || "Failed to reach the study assistant.");
+
+        throw new Error(
+          errorMessage || "Failed to reach the study assistant."
+        );
       }
 
       if (!data?.reply) {
@@ -74,12 +91,15 @@ const StudyChat = () => {
       ]);
     } catch (error) {
       console.error("Study chatbot error:", error);
+
       setMessages((previous) => [
         ...previous,
         {
           role: "assistant",
           isError: true,
-          text: error.message || "Sorry, something went wrong. Please try again.",
+          text:
+            error.message ||
+            "Sorry, something went wrong. Please try again.",
         },
       ]);
     } finally {
@@ -97,21 +117,29 @@ const StudyChat = () => {
   return (
     <section
       aria-label="Lazeu study assistant"
-      className="flex aspect-square w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-white/60 bg-white/50 text-dark-theme shadow-[0_10px_40px_rgba(58,68,81,0.12)]"
+      className="flex h-full min-h-[320px] w-full min-w-0 flex-col
+                 overflow-hidden rounded-3xl border border-white/60
+                 bg-white/50 text-dark-theme
+                 shadow-[0_10px_40px_rgba(58,68,81,0.12)]"
     >
-      <div className="flex items-center gap-3 border-b border-black/10 px-5 py-4">
+      {/* Header */}
+      <div className="flex shrink-0 items-center gap-3 border-b border-black/10 px-5 py-4">
         <span className="nav-theme flex h-9 w-9 items-center justify-center rounded-full text-base text-white">
           ✦
         </span>
+
         <div className="leading-tight">
           <h2 className="font-semibold">Lazeu AI</h2>
-          <p className="text-xs opacity-60">Your study assistant</p>
+          <p className="text-xs opacity-60">
+            Your study assistant
+          </p>
         </div>
       </div>
 
+      {/* Messages */}
       <div
         ref={scrollRef}
-        className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-5 py-4 text-left"
+        className="flex min-h-[180px] min-w-0 flex-1 flex-col gap-3 overflow-y-auto px-5 py-4 text-left"
         aria-live="polite"
       >
         {messages.map((item, index) => (
@@ -119,7 +147,7 @@ const StudyChat = () => {
             key={index}
             className={`max-w-[85%] whitespace-pre-wrap break-words px-4 py-2.5 text-sm leading-relaxed ${
               item.role === "user"
-                ? "nav-theme text-light-theme self-end rounded-2xl rounded-br-md"
+                ? "nav-theme self-end rounded-2xl rounded-br-md text-light-theme"
                 : item.isError
                 ? "self-start rounded-2xl rounded-bl-md border border-red-200 bg-red-50 text-red-700"
                 : "self-start rounded-2xl rounded-bl-md bg-white/80 text-dark-theme"
@@ -153,8 +181,12 @@ const StudyChat = () => {
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="px-4 pb-4 pt-2">
-        <div className="flex items-center gap-2 rounded-full border border-black/10 bg-white/80 py-1.5 pl-5 pr-1.5 focus-within:border-black/40">
+      {/* Input */}
+      <form
+        onSubmit={handleSubmit}
+        className="shrink-0 px-4 pb-4 pt-2"
+      >
+        <div className="flex min-w-0 items-center gap-2 rounded-full border border-black/10 bg-white/80 py-1.5 pl-5 pr-1.5 focus-within:border-black/40">
           <input
             value={message}
             onChange={(e) => setMessage(e.target.value)}
@@ -192,3 +224,4 @@ const StudyChat = () => {
 };
 
 export default StudyChat;
+ 
