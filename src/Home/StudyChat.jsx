@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../supabaseClient";
 
+const SUGGESTIONS = [
+  "Quiz me on a topic",
+  "Explain something simply",
+  "Make a study plan",
+];
+
 const StudyChat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([
@@ -18,10 +24,8 @@ const StudyChat = () => {
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, loading]);
 
-  const sendMessage = async (e) => {
-    e.preventDefault();
-
-    const question = message.trim();
+  const send = async (text) => {
+    const question = text.trim();
     if (!question || loading) return;
 
     setMessages((previous) => [...previous, { role: "user", text: question }]);
@@ -65,28 +69,42 @@ const StudyChat = () => {
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    send(message);
+  };
+
+  const showSuggestions = messages.length === 1 && !loading;
+
   return (
     <section
       aria-label="Lazeu study assistant"
-      className="flex aspect-square w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white text-gray-900 shadow-lg"
+      className="flex aspect-square w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-white/60 bg-white/50 text-dark-theme shadow-[0_10px_40px_rgba(58,68,81,0.12)]"
     >
-      <div className="bg-emerald-700 px-4 py-3 text-white">
-        <h2 className="font-bold">Lazeu AI</h2>
-        <p className="text-xs text-emerald-100">Your Study Assistant</p>
+      {/* Header */}
+      <div className="flex items-center gap-3 border-b border-black/10 px-5 py-4">
+        <span className="nav-theme flex h-9 w-9 items-center justify-center rounded-full text-base text-white">
+          ✦
+        </span>
+        <div className="leading-tight">
+          <h2 className="font-semibold">Lazeu AI</h2>
+          <p className="text-xs opacity-60">Your study assistant</p>
+        </div>
       </div>
 
+      {/* Messages */}
       <div
         ref={scrollRef}
-        className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto bg-gray-50 p-3 text-left"
+        className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-5 py-4 text-left"
         aria-live="polite"
       >
         {messages.map((item, index) => (
           <div
             key={index}
-            className={`max-w-[85%] whitespace-pre-wrap break-words rounded-xl px-3 py-2 text-sm ${
+            className={`max-w-[85%] whitespace-pre-wrap break-words px-4 py-2.5 text-sm leading-relaxed ${
               item.role === "user"
-                ? "self-end bg-emerald-700 text-white"
-                : "self-start border border-gray-200 bg-white text-gray-800"
+                ? "nav-theme text-light-theme self-end rounded-2xl rounded-br-md"
+                : "self-start rounded-2xl rounded-bl-md bg-white/80 text-dark-theme"
             }`}
           >
             {item.text}
@@ -94,31 +112,63 @@ const StudyChat = () => {
         ))}
 
         {loading && (
-          <p className="self-start text-sm text-gray-500">Thinking...</p>
+          <div className="flex items-center gap-1 self-start rounded-2xl rounded-bl-md bg-white/80 px-4 py-3">
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.3s]" />
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.15s]" />
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400" />
+          </div>
+        )}
+
+        {showSuggestions && (
+          <div className="mt-1 flex flex-wrap gap-2">
+            {SUGGESTIONS.map((text) => (
+              <button
+                key={text}
+                type="button"
+                onClick={() => send(text)}
+                className="card-hover-theme rounded-full border border-black/10 bg-white/60 px-3 py-1.5 text-xs transition"
+              >
+                {text}
+              </button>
+            ))}
+          </div>
         )}
       </div>
 
-      <form
-        onSubmit={sendMessage}
-        className="flex gap-2 border-t border-gray-200 bg-white p-3"
-      >
-        <input
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Ask a study question..."
-          aria-label="Your message"
-          maxLength={2000}
-          disabled={loading}
-          className="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
-        />
+      {/* Input */}
+      <form onSubmit={handleSubmit} className="px-4 pb-4 pt-2">
+        <div className="flex items-center gap-2 rounded-full border border-black/10 bg-white/80 py-1.5 pl-5 pr-1.5 focus-within:border-black/40">
+          <input
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Ask a study question..."
+            aria-label="Your message"
+            maxLength={2000}
+            disabled={loading}
+            className="min-w-0 flex-1 bg-transparent text-sm text-dark-theme outline-none placeholder:text-gray-400"
+          />
 
-        <button
-          type="submit"
-          disabled={loading || !message.trim()}
-          className="rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Send
-        </button>
+          <button
+            type="submit"
+            disabled={loading || !message.trim()}
+            aria-label="Send message"
+            className="nav-theme flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 19V5M5 12l7-7 7 7" />
+            </svg>
+          </button>
+        </div>
       </form>
     </section>
   );
