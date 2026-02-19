@@ -1,7 +1,5 @@
-
 import Greetings from "../components/Greetings";
 import StudyChat from "../Home/StudyChat";
-import Ai from "../Home/Ai";
 
 const Home = () => {
   return (
@@ -21,19 +19,16 @@ const Home = () => {
             <img
               src="/mortarboard.png"
               alt="Graduation cap"
-              className="h-28 w-28 object-contain sm:h-36 sm:w-36 md:h-44 md:w-44"
+              className="h-20 w-20 object-contain sm:h-28 sm:w-28 md:h-32 md:w-32"
             />
           </div>
         </section>
 
-        {/* Existing quiz attempts */}
-        <section className="w-full min-w-0">
-          <Ai />
+        {/* Square study chatbot (replaces the recent decks list) */}
+        <section className="flex w-full min-w-0 justify-center">
+          <StudyChat />
         </section>
       </div>
-
-      {/* Gemini AI chatbot */}
-      <StudyChat />
     </main>
   );
 };
