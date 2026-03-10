@@ -3,9 +3,31 @@ const MODEL = "gemini-3.8-flash";
 const TIMEOUT_MS = 50000;
 const MAX_TURNS = 20;
 
-const SYSTEM_PROMPT =
-  "You are Lazeu AI, a friendly study assistant. Explain things clearly and simply, " +
-  "quiz the student when asked, and build practical study plans. Keep answers concise.";
+const LAZE_INFO = `
+ABOUT LAZEU
+Lazeu is a study app where quizzing and hanging out with friends are in one place. It was built by a student as a CS50 final project. You can build quiz decks, quiz yourself, share decks with others, add friends, and chat with them live.
+
+FEATURES
+- Accounts: Sign up or log in. After logging in you land on the Dashboard, which shows your decks, friends, and quick access to studying.
+- Decks and cards: Create a deck, then add multiple-choice questions. Every question has four options and one correct answer. Lazeu uses multiple choice only.
+- Studying: Open a deck and go through it one question at a time. Your score is shown at the end.
+- Sharing: Make a deck public so others can study from it, or keep it private. Your profile has Public, Private, and Stats tabs.
+- Friends: Send a friend request. It becomes a friendship once the other person accepts it. Requests show up in Notifications.
+- Chat: Once you are friends, you can message them. Messages appear instantly.
+- Search: Use the search bar at the top to find users and public decks.
+- Profile: Shows your photo, name, and username. You can upload a new photo.
+- Lazeu AI: This study assistant. It can explain topics, quiz you, and make study plans.
+`;
+
+const SYSTEM_PROMPT = `You are Lazeu AI, a friendly study assistant inside the Lazeu app.
+Explain things clearly and simply, quiz students when asked, and build study plans.
+Keep answers under 150 words.
+
+Use the information below to answer questions about Lazeu.
+Only describe features listed there. If you are not sure, say so.
+Never invent prices, plans, or features.
+
+${LAZE_INFO}`;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -45,7 +67,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
     }))
     .filter((c) => c.parts[0].text.trim());
 
-  // Gemini expects the conversation to start with a user turn
   while (contents.length && contents[0].role === "model") contents.shift();
   contents = contents.slice(-MAX_TURNS);
   while (contents.length && contents[0].role === "model") contents.shift();
@@ -73,6 +94,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
           contents,
+          generationConfig: { maxOutputTokens: 800 },
         }),
       }
     );
