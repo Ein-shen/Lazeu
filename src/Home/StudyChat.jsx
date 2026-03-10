@@ -7,18 +7,17 @@ const SUGGESTIONS = [
   "Make a study plan",
 ];
 
+const GREETING = {
+  role: "assistant",
+  text: "Hi! I'm your Lazeu Study Assistant. What would you like help studying today?",
+};
+
 const StudyChat = () => {
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([
-    {
-      role: "assistant",
-      text: "Hi! I'm your Lazeu Study Assistant. What would you like help studying today?",
-    },
-  ]);
+  const [messages, setMessages] = useState([GREETING]);
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
 
-  // keep the newest message in view
   useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
@@ -41,11 +40,30 @@ const StudyChat = () => {
       if (sessionError) throw sessionError;
       if (!session) throw new Error("Please sign in to use the study assistant.");
 
+      // Send real conversation only: skip the greeting and any error bubbles
+      const history = messages
+        .filter((m) => m !== GREETING && !m.isError)
+        .map((m) => ({
+          role: m.role === "assistant" ? "assistant" : "user",
+          content: m.text,
+        }));
+
       const { data, error } = await supabase.functions.invoke("study-chat", {
-        body: { message: question },
+        body: { messages: [...history, { role: "user", content: question }] },
       });
 
-      if (error) throw error;
+      if (error) {
+        let errorMessage = error.message;
+        try {
+          const bodyText = await error.context?.text?.();
+          if (bodyText) {
+            const parsed = JSON.parse(bodyText);
+            if (parsed?.error) errorMessage = parsed.error;
+          }
+        } catch {}
+        throw new Error(errorMessage || "Failed to reach the study assistant.");
+      }
+
       if (!data?.reply) {
         throw new Error(data?.error || "No response received.");
       }
@@ -56,11 +74,11 @@ const StudyChat = () => {
       ]);
     } catch (error) {
       console.error("Study chatbot error:", error);
-
       setMessages((previous) => [
         ...previous,
         {
           role: "assistant",
+          isError: true,
           text: error.message || "Sorry, something went wrong. Please try again.",
         },
       ]);
@@ -81,7 +99,6 @@ const StudyChat = () => {
       aria-label="Lazeu study assistant"
       className="flex aspect-square w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-white/60 bg-white/50 text-dark-theme shadow-[0_10px_40px_rgba(58,68,81,0.12)]"
     >
-      {/* Header */}
       <div className="flex items-center gap-3 border-b border-black/10 px-5 py-4">
         <span className="nav-theme flex h-9 w-9 items-center justify-center rounded-full text-base text-white">
           ✦
@@ -92,7 +109,6 @@ const StudyChat = () => {
         </div>
       </div>
 
-      {/* Messages */}
       <div
         ref={scrollRef}
         className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-5 py-4 text-left"
@@ -104,6 +120,8 @@ const StudyChat = () => {
             className={`max-w-[85%] whitespace-pre-wrap break-words px-4 py-2.5 text-sm leading-relaxed ${
               item.role === "user"
                 ? "nav-theme text-light-theme self-end rounded-2xl rounded-br-md"
+                : item.isError
+                ? "self-start rounded-2xl rounded-bl-md border border-red-200 bg-red-50 text-red-700"
                 : "self-start rounded-2xl rounded-bl-md bg-white/80 text-dark-theme"
             }`}
           >
@@ -135,7 +153,6 @@ const StudyChat = () => {
         )}
       </div>
 
-      {/* Input */}
       <form onSubmit={handleSubmit} className="px-4 pb-4 pt-2">
         <div className="flex items-center gap-2 rounded-full border border-black/10 bg-white/80 py-1.5 pl-5 pr-1.5 focus-within:border-black/40">
           <input
