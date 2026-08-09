@@ -1,4 +1,5 @@
-import { useNavigate, useParams } from 'react-router-dom'
+// src/pages/Study.jsx
+import { useNavigate, useParams } from 'react'
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { supabase } from '../supabaseClient'
@@ -38,16 +39,14 @@ const Study = () => {
         return
       }
 
-      const { error } = await supabase
-        .from('quiz_attempts')
-        .insert([
-          {
-            user_id: user.id,
-            deck_id: deckId,
-            score: score,
-            total_questions: cards.length,
-          },
-        ])
+      const { error } = await supabase.from('quiz_attempts').insert([
+        {
+          user_id: user.id,
+          deck_id: deckId,
+          score: score,
+          total_questions: cards.length,
+        },
+      ])
 
       if (error) console.error('Error saving score:', error)
 
@@ -55,7 +54,7 @@ const Study = () => {
     }
 
     saveScore()
-  }, [finished])
+  }, [finished, deckId, score, cards.length, navigate])
 
   // Fetch the cards
   useEffect(() => {
@@ -67,7 +66,7 @@ const Study = () => {
         .eq('deck_id', deckId)
 
       if (error) console.error('Error fetching cards:', error)
-      else setCards(data)
+      else setCards(data || [])
 
       const remaining = 1000 - (Date.now() - startTime)
 
@@ -110,9 +109,9 @@ const Study = () => {
   // Loading screen
   if (loading) {
     return (
-      <div className="min-h-screen w-full div-theme flex items-center justify-center px-4">
-        <p className="text-xl sm:text-3xl font-bold flex flex-col sm:flex-row items-center gap-2 text-center">
-          <img src="/mortarboard.png" alt="mortarboard" className="w-20 h-auto sm:w-32" />
+      <div className="min-h-screen w-full div-theme flex items-center justify-center p-4">
+        <p className="text-lg sm:text-2xl md:text-3xl font-bold flex flex-col sm:flex-row items-center gap-3 text-center">
+          <img src="/mortarboard.png" alt="mortarboard" className="w-16 sm:w-24 md:w-28 h-auto" />
           Please wait...
         </p>
       </div>
@@ -120,7 +119,11 @@ const Study = () => {
   }
 
   if (!cards.length) {
-    return <p className="p-6 text-center">No cards in this deck yet.</p>
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center p-6">
+        <p className="text-center font-medium text-lg">No cards in this deck yet.</p>
+      </div>
+    )
   }
 
   function handleNext() {
@@ -139,73 +142,76 @@ const Study = () => {
   }
 
   return (
-    <div className="min-h-screen w-full div-theme flex flex-col items-center gap-4 sm:gap-6 pt-4 sm:pt-10 pb-6 px-4">
+    <div className="min-h-screen w-full div-theme flex flex-col items-center justify-start gap-4 sm:gap-6 pt-4 sm:pt-8 pb-8 px-4 sm:px-6">
 
       {/* Header */}
-      <div className="rounded-md card-theme w-full md:w-[68%] flex items-center justify-between gap-3 px-4 sm:px-6 py-4 sm:py-6">
+      <div className="rounded-md card-theme w-full max-w-3xl flex items-center justify-between gap-2 sm:gap-4 px-4 sm:px-6 py-3 sm:py-4 shadow-sm">
         <button
           type="button"
           aria-label="Close"
-          className="flex-shrink-0"
+          className="flex-shrink-0 p-1 rounded-full hover:bg-gray-100/20 transition-colors"
           onClick={() => navigate(`/cards/${deckId}`)}
         >
-          <X size={24} color="black" />
+          <X size={24} className="sm:w-7 sm:h-7" color="currentColor" />
         </button>
 
-        <h1 className="flex-1 min-w-0 text-base sm:text-xl font-bold text-center truncate">
-          <img src="/mortarboard.png" alt="mortarboard" className="inline-block w-6 h-6 sm:w-8 sm:h-8" />{' '}
-          {deck?.deckname}
+        <h1 className="flex-1 min-w-0 text-sm sm:text-lg md:text-xl font-bold text-center truncate flex items-center justify-center gap-1.5 sm:gap-2">
+          <img src="/mortarboard.png" alt="mortarboard" className="w-5 h-5 sm:w-7 sm:h-7 shrink-0 object-contain" />
+          <span className="truncate">{deck?.deckname}</span>
         </h1>
 
-        <div className="flex-shrink-0 flex flex-col gap-0.5 text-right">
-          <p className="font-bold text-xs sm:text-base">
+        <div className="flex-shrink-0 flex flex-col items-end text-right">
+          <p className="font-bold text-xs sm:text-sm md:text-base whitespace-nowrap">
             Card: {index + 1} / {cards.length}
           </p>
-          <p className="font-bold text-xs sm:text-base">Score: {score}</p>
+          <p className="font-bold text-xs sm:text-sm md:text-base whitespace-nowrap">
+            Score: {score}
+          </p>
         </div>
       </div>
 
-      {/* pt-10 here = space between header and question card */}
-      <form className="w-full md:w-[68%] flex flex-col gap-4 pt-10 sm:gap-6">
+      {/* Main Container */}
+      <form className="w-full max-w-3xl flex flex-col gap-4 sm:gap-6 pt-2 sm:pt-4">
 
         {/* Question card */}
-        <div className="w-full card-theme rounded-md flex flex-col items-center justify-center gap-4 sm:gap-6 min-h-[160px] sm:min-h-[200px] px-4 py-5">
+        <div className="w-full card-theme rounded-md flex flex-col items-center justify-center gap-4 min-h-[180px] sm:min-h-[240px] p-5 sm:p-8 shadow-sm">
           {card.front_image_url && (
             <img
               src={card.front_image_url}
               alt="front"
-              className="w-full max-w-[13rem] sm:max-w-xs h-auto max-h-56 object-cover rounded-md"
+              className="w-full max-w-[14rem] sm:max-w-xs md:max-w-sm h-auto max-h-48 sm:max-h-64 object-cover rounded-md"
             />
           )}
 
-          <h1 className="text-lg sm:text-xl font-bold text-center break-words">{card.front}</h1>
+          <h1 className="text-base sm:text-xl md:text-2xl font-bold text-center break-words max-w-full">
+            {card.front}
+          </h1>
 
           {selected ? (
-            <h1 className="flex flex-row items-center gap-2 font-bold text-2xl sm:text-3xl text-center break-words text-green-600 capitalize">
-              {card.back}
+            <h1 className="flex flex-wrap items-center justify-center gap-2 font-bold text-xl sm:text-2xl md:text-3xl text-center break-words text-green-600 capitalize">
+              <span>{card.back}</span>
               <img
                 src="https://img.icons8.com/?size=100&id=sz8cPVwzLrMP&format=png&color=000000"
                 alt="correct"
-                height={40}
-                width={40}
+                className="w-7 h-7 sm:w-9 sm:h-9 object-contain"
               />
             </h1>
           ) : (
-            <h1 className="font-bold text-md">_ _ _ _</h1>
+            <h1 className="font-bold text-lg sm:text-xl tracking-widest text-gray-500">_ _ _ _</h1>
           )}
         </div>
 
         {/* Answer choices */}
-        <div className="w-full flex flex-col pb-2 pt-4 sm:flex-row items-stretch gap-3 sm:gap-4">
+        <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
           {options.map((opt) => {
             const isPicked = selected === opt
             const isCorrect = opt === card.back
 
             let color = 'bg-[#8BBB92] hover:bg-[#a3cdaa]'
             if (selected) {
-              if (isCorrect) color = 'bg-green-300'
-              else if (isPicked) color = 'bg-red-300'
-              else color = 'bg-[#8BBB92] opacity-60'
+              if (isCorrect) color = 'bg-green-300 text-green-900 font-bold'
+              else if (isPicked) color = 'bg-red-300 text-red-900 font-bold'
+              else color = 'bg-[#8BBB92] opacity-50'
             }
 
             return (
@@ -214,7 +220,7 @@ const Study = () => {
                 key={opt}
                 disabled={selected !== null}
                 onClick={() => handleAnswer(opt)}
-                className={`w-full min-h-[3.5rem] sm:min-h-[4rem] capitalize rounded-md px-4 sm:px-6 py-2 text-center font-bold text-xs sm:text-base break-words transition ${color}`}
+                className={`w-full min-h-[3rem] sm:min-h-[3.5rem] md:min-h-[4rem] capitalize rounded-md px-3 sm:px-4 py-2 text-center font-bold text-xs sm:text-sm md:text-base break-words transition duration-150 flex items-center justify-center ${color}`}
               >
                 {opt}
               </button>
@@ -222,14 +228,14 @@ const Study = () => {
           })}
         </div>
 
-        {/* Next button: always takes up space, only visible after answering */}
+        {/* Next button */}
         <button
           type="button"
           onClick={handleNext}
           disabled={!selected}
           tabIndex={selected ? 0 : -1}
-          className={`w-full px-6 py-3 card-theme card-hover-theme rounded-md font-bold ${
-            selected ? '' : 'invisible'
+          className={`w-full py-3.5 px-6 card-theme card-hover-theme rounded-md font-bold text-sm sm:text-base transition duration-150 ${
+            selected ? 'opacity-100 cursor-pointer' : 'invisible pointer-events-none'
           }`}
         >
           Next
