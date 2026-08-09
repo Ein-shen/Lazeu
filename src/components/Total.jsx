@@ -1,4 +1,5 @@
-import { useNavigate, useParams } from 'react-router-dom'
+// src/pages/Total.jsx
+import { useNavigate, useParams } from 'react'
 import { supabase } from '../supabaseClient'
 import { useEffect, useState } from 'react'
 
@@ -35,7 +36,7 @@ const Total = () => {
     fetchDeck()
   }, [deckId])
 
-  // fetch the latest quiz attempt for this deck
+  // Fetch the latest quiz attempt for this deck
   useEffect(() => {
     if (!deckId) return
 
@@ -64,30 +65,34 @@ const Total = () => {
   }, [deckId])
 
   return (
-    <div className="w-full min-h-screen div-theme  flex flex-col items-center pt-8 sm:pt-20 pb-8 px-4">
-      <div className="w-full md:w-[55%] max-w-2xl card-theme rounded-md flex flex-col gap-4 px-4 py-8 sm:px-6 sm:py-10 md:px-10">
+    <div className="w-full min-h-screen div-theme flex flex-col items-center justify-start sm:justify-center py-8 px-4 sm:px-6">
+      <div className="w-full max-w-xl card-theme rounded-md flex flex-col items-center justify-between gap-6 px-4 sm:px-8 py-8 sm:py-12 shadow-sm min-h-[60vh]">
 
-        <h1 className="font-bold text-xl sm:text-2xl text-center break-words">
+        {/* Deck Title Header */}
+        <h1 className="font-bold text-lg sm:text-2xl md:text-3xl text-center break-words flex items-center justify-center gap-2">
           <img
             src="/mortarboard.png"
             alt="mortarboard"
-            className="w-10 h-12 sm:w-12 sm:h-16 inline pb-1 object-contain"
-          />{' '}
-          {deck?.deckname}
+            className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 shrink-0 object-contain"
+          />
+          <span>{deck?.deckname}</span>
         </h1>
 
-        <h1 className="font-bold text-xl sm:text-2xl text-center pt-8 sm:pt-20">
-          Your result:
-        </h1>
+        {/* Result Display */}
+        <div className="flex flex-col items-center justify-center my-auto py-4">
+          <h2 className="font-semibold text-lg sm:text-xl md:text-2xl text-center text-gray-700 dark:text-gray-200">
+            Your result:
+          </h2>
+          <p className="font-extrabold text-3xl sm:text-5xl md:text-6xl text-center pt-3 tracking-tight">
+            {result ? `${result.score} / ${result.total_questions}` : 'Loading...'}
+          </p>
+        </div>
 
-        <h1 className="font-bold text-3xl sm:text-4xl text-center pt-2 sm:pt-5">
-          {result ? `${result.score} / ${result.total_questions}` : 'Loading...'}
-        </h1>
-
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 md:gap-10 justify-center items-center pt-8 sm:pt-20 md:pt-32">
+        {/* Action Buttons */}
+        <div className="w-full flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center pt-4">
           <button
             type="button"
-            className="font-bold text-md card-hover-theme div-theme rounded-md h-12 w-full sm:w-32"
+            className="font-bold text-sm sm:text-base card-hover-theme div-theme rounded-md h-12 w-full sm:w-36 transition duration-150 flex items-center justify-center"
             onClick={() => navigate(`/cards/${deckId}`)}
           >
             Back
@@ -95,7 +100,7 @@ const Total = () => {
 
           <button
             type="button"
-            className="font-bold text-md card-hover-theme div-theme rounded-md h-12 w-full sm:w-32"
+            className="font-bold text-sm sm:text-base card-hover-theme div-theme rounded-md h-12 w-full sm:w-36 transition duration-150 flex items-center justify-center"
             onClick={() => navigate(`/study/${deckId}`)}
           >
             Re-study
